@@ -7,17 +7,8 @@ from logging import basicConfig, info, error, INFO
 
 packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-if __name__ == '__main__':
-    basicConfig(filename='log.txt',
-                filemode='a',
-                format='%(asctime)s %(message)s',
-                datefmt='%H:%M:%S',
-                level=INFO)
-    info("---start log---")
 
-    file_path = 'C:\\Users\\LENOVO\\PycharmProjects\\facedetection\\laki.jpg'
-    file_name = os.path.basename(file_path)
-    endpoint = 'http://localhost:8080/api/upload/'
+def send_image():
     try:
         request = Request(
             'POST',
@@ -50,5 +41,20 @@ if __name__ == '__main__':
             error(str(err))
         except TypeError as err:
             error(str(err))
+
+
+if __name__ == '__main__':
+    basicConfig(filename='log.txt',
+                filemode='a',
+                format='%(asctime)s %(message)s',
+                datefmt='%H:%M:%S',
+                level=INFO)
+    info("---start log---")
+
+    file_path = 'C:\\Users\\LENOVO\\PycharmProjects\\facedetection\\laki.jpg'
+    file_name = os.path.basename(file_path)
+    endpoint = 'http://localhost:8080/api/upload/'
+
+    send_image()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
