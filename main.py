@@ -76,16 +76,16 @@ if __name__ == '__main__':
             # get corner points of face rectangle
             cv2.imwrite("face.jpg", frame)
             response = send_image(endpoint_url=endpoint, file_path='face.jpg')['message']
-            label = "{}: {:.2f}%".format(response['label'], response['confidence'])
+            if response is not None:
+                label = "{}: {:.2f}%".format(response['label'], response['confidence'])
 
-            (startX, startY) = f[0], f[1]
-            (endX, endY) = f[2], f[3]
+                (startX, startY) = f[0], f[1]
+                (endX, endY) = f[2], f[3]
 
-            # draw rectangle over face
-            cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
-            cv2.putText(frame, label, (startX, startY-5), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.7, (0, 255, 0), 2)
-
+                # draw rectangle over face
+                cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
+                cv2.putText(frame, label, (startX, startY-5), cv2.FONT_HERSHEY_SIMPLEX,
+                            0.7, (0, 255, 0), 2)
 
         cv2.imshow('frame', frame)
         # the 'q' button is set as the
