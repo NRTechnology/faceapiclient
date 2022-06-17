@@ -75,8 +75,9 @@ if __name__ == '__main__':
         for idx, f in enumerate(face):
             # get corner points of face rectangle
             cv2.imwrite("face.jpg", frame)
-            response = send_image(endpoint_url=endpoint, file_path='face.jpg')['message']
-            if response is not None:
+            api_response = send_image(endpoint_url=endpoint, file_path='face.jpg')
+            if api_response is not None:
+                response = api_response['message']
                 label = "{}: {:.2f}%".format(response['label'], response['confidence'])
 
                 (startX, startY) = f[0], f[1]
