@@ -24,7 +24,6 @@ def send_image(endpoint_url, file_path, token):
             },
             headers={'Authorization': 'Bearer ' + token, 'User-Agent': 'SippV1.2'},
         ).prepare()
-        # request.headers = {'Authorization': 'Bearer ' + token, 'User-Agent': 'SippV1.2'}
     except Exception as err:
         error(err)
 
@@ -97,7 +96,7 @@ def test_token(token):
             'GET',
             'http://localhost:8080/api/hello/',
         ).prepare()
-        request.headers = {'Authorization': 'Bearer ' + token, 'User-Agent': 'SippV1.2'}
+        request.headers = {'Authorization': 'Bearer ' + token, 'User-Agent': 'ApiClientV1.2'}
     except Exception as err:
         error(err)
 
