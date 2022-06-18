@@ -136,7 +136,7 @@ if __name__ == '__main__':
     info("---start log---")
 
     loginpath = 'http://localhost:8080/auth/token/'
-    endpoint = 'http://localhost:8080/api/upload/'
+    endpoint = 'http://localhost:8080/api/v1/process/'
 
     username = input("Username : ")
     password = input("Password : ")
