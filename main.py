@@ -8,12 +8,11 @@ import cv2
 import cvlib as cv
 import time
 
-
 packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-def send_image(endpoint_url, file_path):
-    # file_path = 'C:\\Users\\LENOVO\\PycharmProjects\\facedetection\\laki.jpg'
+def send_image(endpoint_url, file_path, token):
+    # file_path = 'C:\\Users\\LENOVO\\PycharmProjects\\faceapiclient\\laki.jpg'
     file_name = os.path.basename(file_path)
 
     try:
@@ -22,6 +21,46 @@ def send_image(endpoint_url, file_path):
             endpoint_url,
             files={
                 'ImageFile': (file_name, open(file_path, 'rb'), 'image/jpeg', {'Expires': '0'}),
+            },
+            headers={'Authorization': 'Bearer ' + token, 'User-Agent': 'SippV1.2'},
+        ).prepare()
+        # request.headers = {'Authorization': 'Bearer ' + token, 'User-Agent': 'SippV1.2'}
+    except Exception as err:
+        error(err)
+
+    json_response = None
+    with Session() as s:
+        try:
+            response = s.send(request, verify=False)
+            if response.status_code == 200 or response.status_code == 500:
+                json_response = response.json()
+            else:
+                error('server response code not found')
+            print(json_response)
+        except HTTPError as err:
+            error(str(err))
+        except ConnectionError as err:
+            error(str(err))
+        except Timeout as err:
+            error(str(err))
+        except ContentDecodingError as err:
+            error(str(err))
+        except RequestException as err:
+            error(str(err))
+        except TypeError as err:
+            error(str(err))
+
+        return json_response
+
+
+def login(url, username, password):
+    try:
+        request = Request(
+            'POST',
+            url,
+            files={
+                'username': (None, username),
+                'password': (None, password),
             }
         ).prepare()
     except Exception as err:
@@ -52,6 +91,43 @@ def send_image(endpoint_url, file_path):
         return json_response
 
 
+def test_token(token):
+    try:
+        request = Request(
+            'GET',
+            'http://localhost:8080/api/hello/',
+        ).prepare()
+        request.headers = {'Authorization': 'Bearer ' + token, 'User-Agent': 'SippV1.2'}
+    except Exception as err:
+        error(err)
+
+    print(request.headers)
+
+    json_response = None
+    with Session() as s:
+        try:
+            response = s.send(request, verify=False)
+            if response.status_code == 200 or response.status_code == 500:
+                json_response = response.json()
+            else:
+                error('server response code not found')
+            print(response.content)
+        except HTTPError as err:
+            error(str(err))
+        except ConnectionError as err:
+            error(str(err))
+        except Timeout as err:
+            error(str(err))
+        except ContentDecodingError as err:
+            error(str(err))
+        except RequestException as err:
+            error(str(err))
+        except TypeError as err:
+            error(str(err))
+
+        return json_response
+
+
 if __name__ == '__main__':
     basicConfig(filename='log.txt',
                 filemode='a',
@@ -60,10 +136,23 @@ if __name__ == '__main__':
                 level=INFO)
     info("---start log---")
 
+    loginpath = 'http://localhost:8080/auth/token/'
     endpoint = 'http://localhost:8080/api/upload/'
 
+    username = input("Username : ")
+    password = input("Password : ")
+
+    login_response = login(loginpath, username=username, password=password)
+    if login_response is None:
+        print("Error get JWT Token")
+        exit(1)
+    jwt_token = login_response['access']
+    print(jwt_token)
+    # api_response = send_image(endpoint_url=endpoint, file_path='face.jpg', token=jwt_token)
+    # print(api_response)
+    # exit(1)
     vid = cv2.VideoCapture(0)
-    while (True):
+    while True:
         # time.sleep(1)
         # Capture the video frame
         # by frame
@@ -75,7 +164,7 @@ if __name__ == '__main__':
         for idx, f in enumerate(face):
             # get corner points of face rectangle
             cv2.imwrite("face.jpg", frame)
-            api_response = send_image(endpoint_url=endpoint, file_path='face.jpg')
+            api_response = send_image(endpoint_url=endpoint, file_path='face.jpg', token=jwt_token)
             if api_response is not None:
                 response = api_response['message']
                 label = "{}: {:.2f}%".format(response['label'], response['confidence'])
@@ -85,7 +174,7 @@ if __name__ == '__main__':
 
                 # draw rectangle over face
                 cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
-                cv2.putText(frame, label, (startX, startY-5), cv2.FONT_HERSHEY_SIMPLEX,
+                cv2.putText(frame, label, (startX, startY - 5), cv2.FONT_HERSHEY_SIMPLEX,
                             0.7, (0, 255, 0), 2)
 
         cv2.imshow('frame', frame)
